@@ -1,6 +1,25 @@
 from django.db import models
 
 
+class Genre(models.Model):
+    name = models.CharField(
+        max_length=256,
+        verbose_name='Название жанра'
+    )
+    slug = models.SlugField(
+        max_length=50,
+        unique=True,
+        verbose_name='Идентификатор жанра'
+    )
+
+    class Meta:
+        verbose_name = 'Жанр'
+        verbose_name_plural = 'Жанры'
+
+    def __str__(self):
+        return self.name
+
+
 class Category(models.Model):
     name = models.CharField(
         max_length=256,
