@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'djoser',
+    'users',
     'api',
     'reviews'
 ]
@@ -69,6 +70,8 @@ DATABASES = {
     }
 }
 
+# USER model
+AUTH_USER_MODEL = 'users.User'
 
 # Password validation
 
