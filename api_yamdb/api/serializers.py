@@ -28,14 +28,13 @@ class GenreSerializer(serializers.ModelSerializer):
         max_length=50,
         validators=[
             UniqueValidator(
-                queryset=Category.objects.all()
+                queryset=Genre.objects.all()
             )
         ]
     )
 
     class Meta:
         model = Genre
-        # fields = '__all__'
         fields = ('name', 'slug')
         lookup_field = 'slug'
         extra_kwargs = {
@@ -46,12 +45,10 @@ class GenreSerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     category = CategorySerializer(many=False)
     genre = GenreSerializer(many=True)
-    # rating = serializers.IntegerField()
 
     class Meta:
         model = Title
         fields = '__all__'
-        # fields = ('category', 'genre', 'name', 'year', 'description')
 
 
 class TitleCreateUpdateSerializer(serializers.ModelSerializer):
@@ -70,7 +67,6 @@ class TitleCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Title
         fields = '__all__'
-        # fields = ('category', 'genre', 'name', 'year', 'description')
 
     def create(self, validated_data):
         category = validated_data.pop('category')
