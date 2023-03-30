@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
-from reviews.models import Category, Genre, Title
+from reviews.models import Category, Genre, Title, GenreTitle
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -35,7 +35,8 @@ class GenreSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Genre
-        fields = '__all__'
+        # fields = '__all__'
+        fields = ('name', 'slug')
         lookup_field = 'slug'
         extra_kwargs = {
             'url': {'lookup_field': 'slug'}
@@ -45,8 +46,38 @@ class GenreSerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     category = CategorySerializer(many=False)
     genre = GenreSerializer(many=True)
-    rating = serializers.IntegerField()
+    # rating = serializers.IntegerField()
 
     class Meta:
         model = Title
         fields = '__all__'
+        # fields = ('category', 'genre', 'name', 'year', 'description')
+
+
+class TitleCreateUpdateSerializer(serializers.ModelSerializer):
+    category = serializers.SlugRelatedField(
+        queryset=Category.objects.all(),
+        slug_field='slug',
+        required=True
+    )
+    genre = serializers.SlugRelatedField(
+        queryset=Genre.objects.all(),
+        slug_field='slug',
+        many=True,
+        required=True
+    )
+
+    class Meta:
+        model = Title
+        fields = '__all__'
+        # fields = ('category', 'genre', 'name', 'year', 'description')
+
+    def create(self, validated_data):
+        category = validated_data.pop('category')
+        genres = validated_data.pop('genre')
+        title = Title.objects.create(**validated_data, category=category)
+
+        for genre in genres:
+            genre = Genre.objects.get(slug=genre.slug)
+            GenreTitle.objects.create(genre=genre, title=title)
+        return title
