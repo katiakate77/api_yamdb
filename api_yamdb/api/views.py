@@ -8,11 +8,11 @@ from .mixins import ListCreateDestroyViewSet
 from reviews.models import Category, Genre, Title
 from .serializers import (CategorySerializer, GenreSerializer,
                           TitleSerializer, TitleCreateUpdateSerializer)
-                          
-                          
+
+
 from rest_framework.pagination import LimitOffsetPagination
 
-# from .permissions import IsAdmin
+# from .permissions import IsAdminPermission
 from .serializers import UserSerializer
 from users.models import User
 
@@ -23,7 +23,7 @@ HTTP_METHOD_NAMES = ['get', 'post', 'patch', 'delete']
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    # permission_classes = (IsAdmin,)
+    # permission_classes = (IsAdminPermission,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
     pagination_class = LimitOffsetPagination
@@ -70,4 +70,3 @@ class TitlesViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         return Title.objects.order_by('id')
-        

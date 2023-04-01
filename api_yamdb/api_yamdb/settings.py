@@ -1,5 +1,5 @@
 from pathlib import Path
-from datetime import timedelta
+# from datetime import timedelta
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -71,7 +71,7 @@ DATABASES = {
     }
 }
 
-# USER model
+# Custom user model
 AUTH_USER_MODEL = 'users.User'
 
 # Password validation
@@ -107,10 +107,10 @@ REST_FRAMEWORK = {
 }
 
 
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
-    'AUTH_HEADER_TYPES': ('Bearer',),
-}
+# SIMPLE_JWT = {
+#     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+#     'AUTH_HEADER_TYPES': ('Bearer',),
+# }
 
 
 # Internationalization

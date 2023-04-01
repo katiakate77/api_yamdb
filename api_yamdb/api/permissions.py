@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
 
-class IsAdmin(permissions.BasePermission):
+class IsAdminPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
         return (
@@ -14,4 +14,3 @@ class IsReadOnlyPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
         return request.method in permissions.SAFE_METHODS
-
