@@ -1,45 +1,29 @@
-from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db import models
 
 
 class User(AbstractUser):
-
-    USER = 'user'
-    MODERATOR = 'moderator'
     ADMIN = 'admin'
-    ROLE_CHOICES = [
-        (USER, 'Пользователь'),
+    MODERATOR = 'moderator'
+    USER = 'user'
+    USER_ROLES = [
+        (ADMIN, 'Администратор'),
         (MODERATOR, 'Модератор'),
-        (ADMIN, 'Администратор')
+        (USER, 'Пользователь'),
     ]
-    username = models.CharField(
-        max_length=150,
-        unique=True,
-        verbose_name='Имя пользователя'
-    )
     email = models.EmailField(
-        max_length=254,
-        verbose_name='Email'
+        unique=True,
+        verbose_name='Адрес электронной почты'
     )
-    first_name = models.CharField(
-        max_length=150,
-        blank=True,
-        verbose_name='Имя пользователя'
-    )
-    last_name = models.CharField(
-        max_length=150,
-        blank=True,
-        verbose_name='Фамилия пользователя'
+    role = models.CharField(
+        max_length=30,
+        choices=USER_ROLES,
+        default=USER,
+        verbose_name='Роль'
     )
     bio = models.TextField(
         blank=True,
         verbose_name='Биография'
-    )
-    role = models.TextField(
-        max_length=30,
-        choices=ROLE_CHOICES,
-        default=USER,
-        verbose_name='Роль'
     )
 
     class Meta:
@@ -48,3 +32,7 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+
+    @property
+    def is_admin(self):
+        return self.role == self.ADMIN

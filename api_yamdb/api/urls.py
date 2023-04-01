@@ -1,18 +1,20 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
+from api.views import UserViewSet
 from . import views
 
-router_v1 = DefaultRouter()
+router = DefaultRouter()
 
-router_v1.register('categories', views.CategoriesViewSet,
+router.register('categories', views.CategoriesViewSet,
                    basename='categories')
-router_v1.register('genres', views.GenresViewSet, basename='genres')
-router_v1.register('titles', views.TitlesViewSet, basename='titles')
+router.register('genres', views.GenresViewSet, basename='genres')
+router.register('titles', views.TitlesViewSet, basename='titles')
+router.register('users', UserViewSet)
 
-
+app_name = 'api'
 urlpatterns = [
-    path('v1/', include(router_v1.urls), name='v1'),
-    path('v1/', include('djoser.urls')),
-    path('v1/', include('djoser.urls.jwt')),
+    path('', include(router.urls)),
+    path('', include('djoser.urls')),
+    path('', include('djoser.urls.jwt')),
 ]

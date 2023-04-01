@@ -2,6 +2,7 @@ from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
 
 from reviews.models import Category, Genre, Title, GenreTitle
+from users.models import User
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -77,3 +78,12 @@ class TitleCreateUpdateSerializer(serializers.ModelSerializer):
             genre = Genre.objects.get(slug=genre.slug)
             GenreTitle.objects.create(genre=genre, title=title)
         return title
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = (
+            'username', 'email', 'first_name', 'last_name', 'bio', 'role'
+        )
+        model = User
