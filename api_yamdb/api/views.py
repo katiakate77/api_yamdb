@@ -5,7 +5,8 @@ from django.shortcuts import get_object_or_404
 # from django.db.models import Avg
 
 from .filters import TitlesFilter
-from .permissions import IsReadOnlyPermission, IsAdminPermission
+from api.permissions import (IsReadOnlyPermission,
+                             IsAdminPermission, AccessOrReadOnly)
 from .mixins import ListCreateDestroyViewSet
 from reviews.models import (Category, Genre, Title,
                             Review
@@ -81,7 +82,7 @@ class TitlesViewSet(viewsets.ModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsReadOnlyPermission,)
+                          AccessOrReadOnly,)
     pagination_class = PageNumberPagination
     http_method_names = HTTP_METHOD_NAMES
 
@@ -97,7 +98,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,
-                          IsReadOnlyPermission,)
+                          AccessOrReadOnly,)
     pagination_class = PageNumberPagination
     http_method_names = HTTP_METHOD_NAMES
 

@@ -48,6 +48,8 @@ class GenreSerializer(serializers.ModelSerializer):
 class TitleSerializer(serializers.ModelSerializer):
     category = CategorySerializer(many=False)
     genre = GenreSerializer(many=True)
+    rating = serializers.IntegerField(
+        source='reviews__score__avg', read_only=True)
 
     class Meta:
         model = Title
@@ -66,10 +68,12 @@ class TitleCreateUpdateSerializer(serializers.ModelSerializer):
         many=True,
         required=True
     )
+    description = serializers.CharField(required=False)
 
     class Meta:
         model = Title
         fields = '__all__'
+        read_only_fields = ('rating',)
 
     def create(self, validated_data):
         category = validated_data.pop('category')
@@ -91,15 +95,33 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
 
 
-class CommentSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = '__all__'
-        model = Comment
-
-
 class ReviewSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        slug_field='username', read_only=True)
 
     class Meta:
-        fields = '__all__'
+        fields = ('id', 'text', 'author', 'score', 'pub_date')
         model = Review
+
+    def validate(self, data):
+        if self.context['request'].method != 'POST':
+            return data
+        user = self.context['request'].user
+        title_id = (
+            self.context['request'].parser_context['kwargs']['title_id']
+        )
+        if Review.objects.filter(author=user, title__id=title_id).exists():
+            raise serializers.ValidationError(
+                'Вы уже оставили отзыв на данное произведение'
+            )
+        return data
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        slug_field='username', read_only=True
+    )
+
+    class Meta:
+        fields = ('id', 'text', 'author', 'pub_date')
+        model = Comment
