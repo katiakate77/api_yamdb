@@ -5,8 +5,7 @@ from django.shortcuts import get_object_or_404
 # from django.db.models import Avg
 
 from .filters import TitlesFilter
-from api.permissions import (IsReadOnlyPermission,
-                             IsAdminPermission, AccessOrReadOnly)
+from api.permissions import (ReadOnly, IsAdmin, AccessOrReadOnly)
 from .mixins import ListCreateDestroyViewSet
 from reviews.models import (Category, Genre, Title,
                             Review
@@ -17,9 +16,8 @@ from .serializers import (CategorySerializer, GenreSerializer,
                           )
 
 from rest_framework import permissions
-from rest_framework.pagination import LimitOffsetPagination
+# from rest_framework.pagination import LimitOffsetPagination
 
-# from .permissions import IsAdminPermission
 from .serializers import UserSerializer
 from users.models import User
 
@@ -30,10 +28,10 @@ HTTP_METHOD_NAMES = ('get', 'post', 'patch', 'delete')
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    # permission_classes = (IsAdminPermission,)
+    permission_classes = (IsAdmin,)
     filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
-    pagination_class = LimitOffsetPagination
+    pagination_class = PageNumberPagination
     http_method_names = HTTP_METHOD_NAMES
     lookup_field = 'username'
 
@@ -41,42 +39,47 @@ class UserViewSet(viewsets.ModelViewSet):
 class CategoriesViewSet(ListCreateDestroyViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
-    permission_classes = [IsReadOnlyPermission | IsAdminPermission]
+    permission_classes = [ReadOnly | IsAdmin]
     pagination_class = PageNumberPagination
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
+    # ordering_fields = ('id',)
+    # ordering = ['id']
 
-    def get_queryset(self):
-        return Category.objects.order_by('id')
+    # def get_queryset(self):
+    #     return Category.objects.order_by('id')
 
 
 class GenresViewSet(ListCreateDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
-    permission_classes = [IsReadOnlyPermission | IsAdminPermission]
+    permission_classes = [ReadOnly | IsAdmin]
     filter_backends = (filters.SearchFilter,)
     search_fields = ('name',)
     lookup_field = 'slug'
+    # ordering_fields = ('id',)
 
-    def get_queryset(self):
-        return Genre.objects.order_by('id')
+    # def get_queryset(self):
+    #     return Genre.objects.order_by('id')
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
-    permission_classes = [IsReadOnlyPermission | IsAdminPermission]
+    permission_classes = [ReadOnly | IsAdmin]
     filter_backends = (DjangoFilterBackend,)
+    # фильтрует по имени и году?
     filterset_class = TitlesFilter
+    # ordering_fields = ('id',)
 
     def get_serializer_class(self):
         if self.action in ['create', 'partial_update']:
             return TitleCreateUpdateSerializer
         return TitleSerializer
 
-    def get_queryset(self):
-        return Title.objects.order_by('id')
+    # def get_queryset(self):
+    #     return Title.objects.order_by('id')
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
