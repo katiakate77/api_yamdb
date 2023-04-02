@@ -4,6 +4,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from django.db.models import Avg
 
+from rest_framework.decorators import action
+from rest_framework.response import Response
+
+
 from .filters import TitlesFilter
 
 from api.permissions import (ReadOnly, IsAdmin, AccessOrReadOnly)
@@ -36,6 +40,14 @@ class UserViewSet(viewsets.ModelViewSet):
     http_method_names = HTTP_METHOD_NAMES
     lookup_field = 'username'
     ordering = ('id',)
+
+    @action(
+        detail=False,
+        methods=['get', 'patch'],
+        permission_classes=(permissions.IsAuthenticated,)
+    )
+    def me():
+        ...
 
 
 class CategoriesViewSet(ListCreateDestroyViewSet):
