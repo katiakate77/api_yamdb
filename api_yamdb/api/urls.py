@@ -11,6 +11,8 @@ router.register('categories', views.CategoriesViewSet,
 router.register('genres', views.GenresViewSet, basename='genres')
 router.register('titles', views.TitlesViewSet, basename='titles')
 router.register('users', UserViewSet)
+router.register('reviews', views.ReviewViewSet, basename='reviews')
+router.register('comments', views.CommentViewSet, basename='comments')
 
 app_name = 'api'
 urlpatterns = [
