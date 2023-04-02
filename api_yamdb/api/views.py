@@ -1,25 +1,26 @@
-from rest_framework import filters, viewsets
+from rest_framework import filters, permissions, viewsets
 from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
-# from django.db.models import Avg
+from django.db.models import Avg
 
 from .filters import TitlesFilter
+
 from api.permissions import (ReadOnly, IsAdmin, AccessOrReadOnly)
+
+
 from .mixins import ListCreateDestroyViewSet
+
+from users.models import User
 from reviews.models import (Category, Genre, Title,
                             Review
                             )
 from .serializers import (CategorySerializer, GenreSerializer,
                           TitleSerializer, TitleCreateUpdateSerializer,
-                          CommentSerializer, ReviewSerializer
+                          CommentSerializer, ReviewSerializer, UserSerializer
                           )
 
-from rest_framework import permissions
 # from rest_framework.pagination import LimitOffsetPagination
-
-from .serializers import UserSerializer
-from users.models import User
 
 
 HTTP_METHOD_NAMES = ('get', 'post', 'patch', 'delete')
@@ -65,7 +66,8 @@ class GenresViewSet(ListCreateDestroyViewSet):
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    # PUT - ?
+    queryset = Title.objects.all().annotate(Avg("reviews__score"))
     serializer_class = TitleSerializer
     permission_classes = [ReadOnly | IsAdmin]
     filter_backends = (DjangoFilterBackend,)

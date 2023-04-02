@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from rest_framework.validators import UniqueValidator
+# from rest_framework.validators import UniqueValidator
 
 from reviews.models import (Category, Genre, Title, GenreTitle,
                             Comment, Review
@@ -8,14 +8,14 @@ from users.models import User
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    slug = serializers.SlugField(
-        max_length=50,
-        validators=[
-            UniqueValidator(
-                queryset=Category.objects.all()
-            )
-        ]
-    )
+    # slug = serializers.SlugField(
+    #     max_length=50,
+    #     validators=[
+    #         UniqueValidator(
+    #             queryset=Category.objects.all()
+    #         )
+    #     ]
+    # )
 
     class Meta:
         model = Category
@@ -27,14 +27,14 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
-    slug = serializers.SlugField(
-        max_length=50,
-        validators=[
-            UniqueValidator(
-                queryset=Genre.objects.all()
-            )
-        ]
-    )
+    # slug = serializers.SlugField(
+    #     max_length=50,
+    #     validators=[
+    #         UniqueValidator(
+    #             queryset=Genre.objects.all()
+    #         )
+    #     ]
+    # )
 
     class Meta:
         model = Genre
