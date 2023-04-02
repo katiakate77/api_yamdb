@@ -20,8 +20,6 @@ from .serializers import (CategorySerializer, GenreSerializer,
                           CommentSerializer, ReviewSerializer, UserSerializer
                           )
 
-# from rest_framework.pagination import LimitOffsetPagination
-
 
 HTTP_METHOD_NAMES = ('get', 'post', 'patch', 'delete')
 
@@ -30,11 +28,14 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (IsAdmin,)
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (filters.SearchFilter,
+                       filters.OrderingFilter
+                       )
     search_fields = ('username',)
     pagination_class = PageNumberPagination
     http_method_names = HTTP_METHOD_NAMES
     lookup_field = 'username'
+    ordering = ('id',)
 
 
 class CategoriesViewSet(ListCreateDestroyViewSet):
@@ -42,46 +43,42 @@ class CategoriesViewSet(ListCreateDestroyViewSet):
     serializer_class = CategorySerializer
     permission_classes = [ReadOnly | IsAdmin]
     pagination_class = PageNumberPagination
-    filter_backends = (filters.SearchFilter,)
+    filter_backends = (filters.SearchFilter,
+                       filters.OrderingFilter
+                       )
     search_fields = ('name',)
     lookup_field = 'slug'
-    # ordering_fields = ('id',)
-    # ordering = ['id']
-
-    # def get_queryset(self):
-    #     return Category.objects.order_by('id')
+    ordering = ('id',)
 
 
 class GenresViewSet(ListCreateDestroyViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
     permission_classes = [ReadOnly | IsAdmin]
-    filter_backends = (filters.SearchFilter,)
-    search_fields = ('name',)
     lookup_field = 'slug'
-    # ordering_fields = ('id',)
-
-    # def get_queryset(self):
-    #     return Genre.objects.order_by('id')
+    filter_backends = (filters.SearchFilter,
+                       filters.OrderingFilter
+                       )
+    search_fields = ('name',)
+    ordering = ('id',)
 
 
 class TitlesViewSet(viewsets.ModelViewSet):
-    # PUT - ?
     queryset = Title.objects.all().annotate(Avg("reviews__score"))
     serializer_class = TitleSerializer
     permission_classes = [ReadOnly | IsAdmin]
-    filter_backends = (DjangoFilterBackend,)
+    filter_backends = (DjangoFilterBackend,
+                       filters.OrderingFilter
+                       )
+    http_method_names = HTTP_METHOD_NAMES
     # фильтрует по имени и году?
     filterset_class = TitlesFilter
-    # ordering_fields = ('id',)
+    ordering = ('id',)
 
     def get_serializer_class(self):
         if self.action in ['create', 'partial_update']:
             return TitleCreateUpdateSerializer
         return TitleSerializer
-
-    # def get_queryset(self):
-    #     return Title.objects.order_by('id')
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -90,6 +87,8 @@ class ReviewViewSet(viewsets.ModelViewSet):
                           AccessOrReadOnly,)
     pagination_class = PageNumberPagination
     http_method_names = HTTP_METHOD_NAMES
+    filter_backends = (filters.OrderingFilter,)
+    ordering = ('id',)
 
     def get_queryset(self):
         title = get_object_or_404(Title, id=self.kwargs.get('title_id'))
@@ -106,6 +105,8 @@ class CommentViewSet(viewsets.ModelViewSet):
                           AccessOrReadOnly,)
     pagination_class = PageNumberPagination
     http_method_names = HTTP_METHOD_NAMES
+    filter_backends = (filters.OrderingFilter,)
+    ordering = ('id',)
 
     def perform_create(self, serializer):
         review = get_object_or_404(Review, id=self.kwargs.get('review_id'),
