@@ -17,13 +17,11 @@ from .mixins import ListCreateDestroyViewSet
 
 from users.models import User
 from reviews.models import (Category, Genre,
-                            Review, Title,
-                            )
+                            Review, Title)
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ProfileSerializer, ReviewSerializer,
                           TitleSerializer, TitleCreateUpdateSerializer,
-                          UserSerializer, ProfileSerializer
-                          )
+                          UserSerializer)
 
 
 HTTP_METHOD_NAMES = ('get', 'post', 'patch', 'delete')
