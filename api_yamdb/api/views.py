@@ -1,4 +1,4 @@
-from rest_framework import filters, permissions, viewsets, status
+from rest_framework import filters, permissions, status, viewsets
 from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
@@ -16,12 +16,13 @@ from api.permissions import (ReadOnly, IsAdmin, AccessOrReadOnly)
 from .mixins import ListCreateDestroyViewSet
 
 from users.models import User
-from reviews.models import (Category, Genre, Title,
-                            Review
+from reviews.models import (Category, Genre,
+                            Review, Title,
                             )
-from .serializers import (CategorySerializer, GenreSerializer,
+from .serializers import (CategorySerializer, CommentSerializer,
+                          GenreSerializer, ProfileSerializer, ReviewSerializer,
                           TitleSerializer, TitleCreateUpdateSerializer,
-                          CommentSerializer, ReviewSerializer, UserSerializer, ProfileSerializer
+                          UserSerializer, ProfileSerializer
                           )
 
 
@@ -49,11 +50,15 @@ class UserViewSet(viewsets.ModelViewSet):
     )
     def me(self, request):
         if request.method == 'PATCH':
-            serializer = self.get_serializer(request.user, data=request.data, partial=True)
+            serializer = self.get_serializer(
+                request.user, data=request.data, partial=True
+            )
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
 
@@ -91,7 +96,6 @@ class TitlesViewSet(viewsets.ModelViewSet):
                        filters.OrderingFilter
                        )
     http_method_names = HTTP_METHOD_NAMES
-    # фильтрует по имени и году?
     filterset_class = TitlesFilter
     ordering = ('id',)
 

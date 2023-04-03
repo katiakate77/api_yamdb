@@ -1,5 +1,5 @@
+from django.utils.timezone import now
 from rest_framework import serializers
-# from rest_framework.validators import UniqueValidator
 
 from reviews.models import (Category, Genre, Title, GenreTitle,
                             Comment, Review
@@ -8,41 +8,17 @@ from users.models import User
 
 
 class CategorySerializer(serializers.ModelSerializer):
-    # slug = serializers.SlugField(
-    #     max_length=50,
-    #     validators=[
-    #         UniqueValidator(
-    #             queryset=Category.objects.all()
-    #         )
-    #     ]
-    # )
 
     class Meta:
         model = Category
         fields = ('name', 'slug')
-        # lookup_field = 'slug'
-        # extra_kwargs = {
-        #     'url': {'lookup_field': 'slug'}
-        # }
 
 
 class GenreSerializer(serializers.ModelSerializer):
-    # slug = serializers.SlugField(
-    #     max_length=50,
-    #     validators=[
-    #         UniqueValidator(
-    #             queryset=Genre.objects.all()
-    #         )
-    #     ]
-    # )
 
     class Meta:
         model = Genre
         fields = ('name', 'slug')
-        # lookup_field = 'slug'
-        # extra_kwargs = {
-        #     'url': {'lookup_field': 'slug'}
-        # }
 
 
 class TitleSerializer(serializers.ModelSerializer):
@@ -85,6 +61,11 @@ class TitleCreateUpdateSerializer(serializers.ModelSerializer):
             GenreTitle.objects.create(genre=genre, title=title)
         return title
 
+    def validate_year(self, value):
+        if value > now().year:
+            raise serializers.ValidationError('Неверный год выпуска')
+        return value
+
 
 class UserSerializer(serializers.ModelSerializer):
 
@@ -93,11 +74,11 @@ class UserSerializer(serializers.ModelSerializer):
             'username', 'email', 'first_name', 'last_name', 'bio', 'role'
         )
         model = User
-        # exclude = ('id',)
+
 
 class ProfileSerializer(UserSerializer):
-    # role = serializers.ChoiceField(choices=User.USER_ROLES, read_only=True)
     role = serializers.CharField(read_only=True)
+    # role = serializers.ChoiceField(choices=User.USER_ROLES, read_only=True)
 
 
 class ReviewSerializer(serializers.ModelSerializer):
