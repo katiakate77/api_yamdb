@@ -93,6 +93,11 @@ class UserSerializer(serializers.ModelSerializer):
             'username', 'email', 'first_name', 'last_name', 'bio', 'role'
         )
         model = User
+        # exclude = ('id',)
+
+class ProfileSerializer(UserSerializer):
+    # role = serializers.ChoiceField(choices=User.USER_ROLES, read_only=True)
+    role = serializers.CharField(read_only=True)
 
 
 class ReviewSerializer(serializers.ModelSerializer):

@@ -1,4 +1,4 @@
-from rest_framework import filters, permissions, viewsets
+from rest_framework import filters, permissions, viewsets, status
 from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
@@ -21,7 +21,7 @@ from reviews.models import (Category, Genre, Title,
                             )
 from .serializers import (CategorySerializer, GenreSerializer,
                           TitleSerializer, TitleCreateUpdateSerializer,
-                          CommentSerializer, ReviewSerializer, UserSerializer
+                          CommentSerializer, ReviewSerializer, UserSerializer, ProfileSerializer
                           )
 
 
@@ -44,10 +44,18 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=['get', 'patch'],
+        serializer_class=ProfileSerializer,
         permission_classes=(permissions.IsAuthenticated,)
     )
-    def me():
-        ...
+    def me(self, request):
+        if request.method == 'PATCH':
+            serializer = self.get_serializer(request.user, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.get_serializer(request.user)
+        return Response(serializer.data)
 
 
 class CategoriesViewSet(ListCreateDestroyViewSet):
