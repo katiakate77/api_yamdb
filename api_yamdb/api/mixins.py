@@ -6,3 +6,8 @@ class ListCreateDestroyViewSet(mixins.ListModelMixin,
                                mixins.DestroyModelMixin,
                                viewsets.GenericViewSet):
     pass
+
+
+class UserSignupViewSet(mixins.CreateModelMixin,
+                        viewsets.GenericViewSet):
+    pass

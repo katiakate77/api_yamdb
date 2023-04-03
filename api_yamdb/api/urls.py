@@ -22,10 +22,16 @@ router.register('categories', views.CategoriesViewSet,
 router.register('genres', views.GenresViewSet, basename='genres')
 router.register('titles', views.TitlesViewSet, basename='titles')
 router.register('users', UserViewSet)
+router.register('auth/signup', views.SignupViewSet, basename='signup')
 
 app_name = 'api'
 urlpatterns = [
     path('', include(router.urls)),
+    path(
+        'v1/auth/token/',
+        views.UserTokenObtainPairView.as_view(),
+        name='token'
+    ),
     # path('', include('djoser.urls')),
     # path('', include('djoser.urls.jwt')),
 ]

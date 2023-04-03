@@ -5,6 +5,13 @@ from reviews.models import (Category, Genre, Title, GenreTitle,
                             Comment, Review
                             )
 from users.models import User
+from django.core.mail import send_mail
+from django.shortcuts import get_object_or_404
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
+
+
+MAIL = 'practicum@yamdb.api'
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -90,9 +97,25 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = (
-            'username', 'email', 'first_name', 'last_name', 'bio', 'role'
+            'username', 'email', 'first_name', 'last_name', 'bio', 'role',
+            'confirmation_code'
         )
         model = User
+    
+    def create(self, validated_data):
+        user = User.objects.create(
+            username=validated_data['username'],
+            email=validated_data['email'],
+        )
+        user.save()
+        send_mail(
+            'Confirmation code',
+            f'{user.confirmation_code}',
+            MAIL,
+            [validated_data['email']],
+            fail_silently=False,
+        )
+        return user
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -125,3 +148,32 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'text', 'author', 'pub_date')
         model = Comment
+
+
+class UserTokenObtainPairSerializer(TokenObtainPairSerializer):
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        del self.fields['password']
+        self.fields['confirmation_code'] = serializers.CharField()
+
+    @classmethod
+    def get_token(cls, user):
+        token = RefreshToken.for_user(user)
+        token['username'] = user.username
+        token['confirmation_code'] = user.confirmation_code
+        return {'token': str(token.access_token)}
+
+    def validate(self, attrs):
+        user = get_object_or_404(
+            User,
+            username=attrs['username'],
+        )
+        try:
+            user = User.objects.get(
+                username=attrs['username'],
+                confirmation_code=attrs['confirmation_code'],
+            )
+            return self.get_token(user)
+        except Exception:
+            raise ValidationError('Неверный код')

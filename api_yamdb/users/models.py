@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+import string, random
 
 
 class User(AbstractUser):
@@ -24,6 +25,12 @@ class User(AbstractUser):
     bio = models.TextField(
         blank=True,
         verbose_name='Биография'
+    )
+    confirmation_code = models.CharField(
+        verbose_name='Код подтверждения',
+        max_length=10,
+        default=''.join(random.sample(string.ascii_letters + string.digits,
+                        10)),
     )
 
     class Meta:

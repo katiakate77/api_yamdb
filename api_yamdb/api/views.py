@@ -1,4 +1,4 @@
-from rest_framework import filters, permissions, viewsets
+from rest_framework import filters, permissions, viewsets, status
 from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
@@ -13,7 +13,7 @@ from .filters import TitlesFilter
 from api.permissions import (ReadOnly, IsAdmin, AccessOrReadOnly)
 
 
-from .mixins import ListCreateDestroyViewSet
+from .mixins import ListCreateDestroyViewSet, UserSignupViewSet
 
 from users.models import User
 from reviews.models import (Category, Genre, Title,
@@ -21,9 +21,10 @@ from reviews.models import (Category, Genre, Title,
                             )
 from .serializers import (CategorySerializer, GenreSerializer,
                           TitleSerializer, TitleCreateUpdateSerializer,
-                          CommentSerializer, ReviewSerializer, UserSerializer
+                          CommentSerializer, ReviewSerializer, UserSerializer,
+                          UserTokenObtainPairSerializer
                           )
-
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 HTTP_METHOD_NAMES = ('get', 'post', 'patch', 'delete')
 
@@ -46,8 +47,42 @@ class UserViewSet(viewsets.ModelViewSet):
         methods=['get', 'patch'],
         permission_classes=(permissions.IsAuthenticated,)
     )
-    def me():
-        ...
+    def me(self, request):
+        if request.method == 'GET':
+            serializer = self.get_serializer(request.user)
+            return Response(serializer.data)
+        elif request.method == 'PATCH':
+            serializer = self.get_serializer(
+                request.user,
+                data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.data)
+
+
+class UserTokenObtainPairView(TokenObtainPairView):
+    serializer_class = UserTokenObtainPairSerializer
+
+
+class SignupViewSet(UserSignupViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        data = {
+            'email': serializer.data['email'],
+            'username': serializer.data['username'],
+        }
+        return Response(
+            data,
+            status=status.HTTP_200_OK,
+            headers=headers
+        )
 
 
 class CategoriesViewSet(ListCreateDestroyViewSet):
