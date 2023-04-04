@@ -3,6 +3,7 @@ from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from django.db.models import Avg
+from rest_framework.views import APIView
 
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -59,6 +60,16 @@ class UserViewSet(viewsets.ModelViewSet):
             )
         serializer = self.get_serializer(request.user)
         return Response(serializer.data)
+
+
+class SignUPView(APIView):
+    def post(self, request):
+        ...
+
+
+class TokenView(APIView):
+    def post(self, request):
+        ...
 
 
 class CategoriesViewSet(ListCreateDestroyViewSet):
