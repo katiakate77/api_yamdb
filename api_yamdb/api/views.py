@@ -4,6 +4,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from django.db.models import Avg
 from rest_framework.views import APIView
+# import string
+# import random
+# from django.core.mail import send_mail
 
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -22,10 +25,13 @@ from reviews.models import (Category, Genre,
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ProfileSerializer, ReviewSerializer,
                           TitleSerializer, TitleCreateUpdateSerializer,
-                          UserSerializer)
+                          UserSerializer,)
+                        #   SignUpSerializer
+                
 
 
 HTTP_METHOD_NAMES = ('get', 'post', 'patch', 'delete')
+FROM_EMAIL = 'practicum@yamdb.api'
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -62,14 +68,42 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class SignUPView(APIView):
-    def post(self, request):
-        ...
+# class SignUPView(APIView):
+#     def post(self, request):
+#         serializer = SignUpSerializer(data=request.data)
+#         if serializer.is_valid():
+#             username = serializer.validated_data.get('username')
+#             email = serializer.validated_data.get('email')
+#             confirmation_code = ''.join(random.sample(
+#                 string.ascii_letters + string.digits, 10)
+#             )
+#             user, created = User.objects.get_or_create(
+#                 username=username,
+#                 email=email
+#             )
+#             send_mail(
+#                 'Confirmation code',
+#                 f'{confirmation_code}',
+#                 FROM_EMAIL,
+#                 email,
+#                 fail_silently=False,
+#             )
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class TokenView(APIView):
-    def post(self, request):
-        ...
+
+    # def create(self, validated_data):
+    #     user = User.objects.get_or_create(
+    #         username=validated_data.get('username'),
+    #         email=validated_data['email']
+    #     )
+    #     return user
+
+
+# class TokenView(APIView):
+#     def post(self, request):
+#         ...
 
 
 class CategoriesViewSet(ListCreateDestroyViewSet):

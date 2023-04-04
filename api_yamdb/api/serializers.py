@@ -76,6 +76,26 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
 
 
+# class SignUpSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         fields = ('username', 'email')
+#         model = User
+
+#     def validate_username(self, value):
+#         if value == 'me':
+#             raise serializers.ValidationError(
+#                 'Использовать "me" в качестве username запрещено'
+#             )
+#         return value
+
+
+# class TokenSerializer(serializers.ModelSerializer):
+
+#     class Meta:
+#         model = User
+#         fields = ('username', 'confirmation_code')
+
+
 class ProfileSerializer(UserSerializer):
     role = serializers.CharField(read_only=True)
     # role = serializers.ChoiceField(choices=User.USER_ROLES, read_only=True)
