@@ -4,9 +4,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from django.db.models import Avg
 from rest_framework.views import APIView
-# import string
-# import random
-# from django.core.mail import send_mail
+import string
+import random
+from django.core.mail import send_mail
 
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -25,8 +25,11 @@ from reviews.models import (Category, Genre,
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ProfileSerializer, ReviewSerializer,
                           TitleSerializer, TitleCreateUpdateSerializer,
-                          UserSerializer,)
-                        #   SignUpSerializer
+                          UserSerializer,
+                          SignUpSerializer, TokenSerializer)
+
+from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
+from django.contrib.auth.tokens import default_token_generator
                 
 
 
@@ -45,7 +48,7 @@ class UserViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
     http_method_names = HTTP_METHOD_NAMES
     lookup_field = 'username'
-    ordering = ('id',)
+    # ordering = ('id',)
 
     @action(
         detail=False,
@@ -68,42 +71,55 @@ class UserViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-# class SignUPView(APIView):
-#     def post(self, request):
-#         serializer = SignUpSerializer(data=request.data)
-#         if serializer.is_valid():
-#             username = serializer.validated_data.get('username')
-#             email = serializer.validated_data.get('email')
-#             confirmation_code = ''.join(random.sample(
-#                 string.ascii_letters + string.digits, 10)
-#             )
-#             user, created = User.objects.get_or_create(
-#                 username=username,
-#                 email=email
-#             )
-#             send_mail(
-#                 'Confirmation code',
-#                 f'{confirmation_code}',
-#                 FROM_EMAIL,
-#                 email,
-#                 fail_silently=False,
-#             )
-#             return Response(serializer.data, status=status.HTTP_200_OK)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class SignUPView(APIView):
+
+    def post(self, request):
+        serializer = SignUpSerializer(data=request.data)
+        if serializer.is_valid():
+            username = serializer.validated_data.get('username')
+            email = serializer.validated_data.get('email')
+            # confirmation_code = ''.join(random.sample(
+            #     string.ascii_letters + string.digits, 10)
+            # )
+            user = User.objects.get_or_create(
+                username=username,
+                email=email,
+            )
+            confirmation_code = default_token_generator.make_token(user)
+
+            send_mail(
+                'Confirmation code',
+                f'{confirmation_code}',
+                FROM_EMAIL,
+                email,
+                fail_silently=False,
+            )
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
-    # def create(self, validated_data):
-    #     user = User.objects.get_or_create(
-    #         username=validated_data.get('username'),
-    #         email=validated_data['email']
-    #     )
-    #     return user
 
+class TokenView(APIView):
+    def post(self, request):
+        serializer = TokenSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = get_object_or_404(
+            User,
+            username=serializer.validated_data.get('username')
+        )
+        confirmation_code = serializer.validated_data.get('confirmation_code')
+        token = default_token_generator.check_token(user, confirmation_code)
 
-# class TokenView(APIView):
-#     def post(self, request):
-#         ...
+        if token == serializer.validated_data.get('confirmation_code'):
+            jwt_token = RefreshToken.for_user(user)
+            return Response(
+                {'token': f'{jwt_token}'}, status=status.HTTP_200_OK
+            )
+        return Response(
+            {'message': 'Отказано в доступе'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class CategoriesViewSet(ListCreateDestroyViewSet):

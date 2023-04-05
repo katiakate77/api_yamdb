@@ -67,40 +67,6 @@ class TitleCreateUpdateSerializer(serializers.ModelSerializer):
         return value
 
 
-class UserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = (
-            'username', 'email', 'first_name', 'last_name', 'bio', 'role'
-        )
-        model = User
-
-
-# class SignUpSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         fields = ('username', 'email')
-#         model = User
-
-#     def validate_username(self, value):
-#         if value == 'me':
-#             raise serializers.ValidationError(
-#                 'Использовать "me" в качестве username запрещено'
-#             )
-#         return value
-
-
-# class TokenSerializer(serializers.ModelSerializer):
-
-#     class Meta:
-#         model = User
-#         fields = ('username', 'confirmation_code')
-
-
-class ProfileSerializer(UserSerializer):
-    role = serializers.CharField(read_only=True)
-    # role = serializers.ChoiceField(choices=User.USER_ROLES, read_only=True)
-
-
 class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         slug_field='username', read_only=True)
@@ -131,3 +97,37 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ('id', 'text', 'author', 'pub_date')
         model = Comment
+
+
+class UserSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        fields = (
+            'username', 'email', 'first_name', 'last_name', 'bio', 'role'
+        )
+        model = User
+
+
+class ProfileSerializer(UserSerializer):
+    role = serializers.CharField(read_only=True)
+
+
+class SignUpSerializer(serializers.Serializer):
+    class Meta:
+        fields = ('username', 'email')
+        model = User
+
+    # def validate_username(self, value):
+    #     if value == 'me':
+    #         raise serializers.ValidationError(
+    #             'Использовать "me" в качестве username запрещено'
+    #         )
+    #     return value
+
+
+class TokenSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('username', 'confirmation_code')
+

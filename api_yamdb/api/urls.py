@@ -27,8 +27,8 @@ app_name = 'api'
 urlpatterns = [
     path('auth/', include(
         [
-            # path('signup/', views.SignUPView.as_view()),
-            # path('token/', views.TokenView.as_view()),
+            path('signup/', views.SignUPView.as_view()),
+            path('token/', views.TokenView.as_view()),
         ]
     )),
     path('', include(router.urls)),
