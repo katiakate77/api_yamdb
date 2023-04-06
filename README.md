@@ -8,7 +8,7 @@
 * Клонировать репозиторий:
 
 ```
-git clone https://github.com/katiakate77/api_final_yatube.git
+git clone https://github.com/katiakate77/api_yamdb.git
 ```
 
 * В папке с репозиторием создать виртуальное окружение и активировать его:
