@@ -1,48 +1,64 @@
-import pandas as pd
-from django.core.management.base import BaseCommand, CommandError
-from reviews.models import Category, Genre, Title, GenreTitle
+from csv import DictReader
+from django.core.management.base import BaseCommand
+from reviews.models import Category, Genre, Title, GenreTitle, Comment, Review
 from users.models import User
-from django.db.models.fields.related import ForeignKey
 
 
 class Command(BaseCommand):
     """
-    Наполняет базу данных данными из csv файла.
-    python api_yamdb/manage.py add_data [путь до файла] [название модели].
+    Добавляет данные из csv файлов в модели.
+    Для запуска скрипта: python api_yamdb/manage.py add_data
     """
 
-    def add_arguments(self, parser):
-        parser.add_argument('file_path', type=str)
-        parser.add_argument('model_name', type=str)
-
     def handle(self, *args, **options):
-        df = pd.read_csv(options['file_path'])
-        row_iter = df.iterrows()
-        model = self.get_model(options['model_name'])
-
-        objs = []
-        for index, row in row_iter:
-            data = row.to_dict()
-            for field_name, value in data.items():
-                field = model._meta.get_field(field_name)
-                if isinstance(field, ForeignKey):
-                    related_model = field.related_model
-                    if options['model_name'].lower() == 'genre_title':
-                        data[field_name] = value
-                    else:
-                        data[field_name] = related_model.objects.get(pk=value)
-            obj = model.objects.create(**data)
-            objs.append(obj)
-
-    def get_model(self, model_name):
-        models = {
-            'category': Category,
-            'genre': Genre,
-            'title': Title,
-            'genre_title': GenreTitle,
-            'user': User,
-        }
-        try:
-            return models[model_name.lower()]
-        except KeyError:
-            raise CommandError(f'Invalid model name: {model_name}')
+        for row in DictReader(open('./api_yamdb/static/data/users.csv',
+                                   errors='ignore', encoding='utf-8')):
+            user = User(
+                id=row['id'], username=row['username'],
+                email=row['email'], role=row['role'],
+                bio=row['bio'], first_name=row['first_name'],
+                last_name=row['last_name']
+            )
+            user.save()
+        for row in DictReader(open('./api_yamdb/static/data/category.csv',
+                                   errors='ignore', encoding='utf-8')):
+            category = Category(
+                id=row['id'], name=row['name'], slug=row['slug']
+            )
+            category.save()
+        for row in DictReader(open('./api_yamdb/static/data/genre.csv',
+                                   errors='ignore', encoding='utf-8')):
+            genre = Genre(
+                id=row['id'], name=row['name'], slug=row['slug']
+            )
+            genre.save()
+        for row in DictReader(open('./api_yamdb/static/data/titles.csv',
+                                   errors='ignore', encoding='utf-8')):
+            title = Title(
+                id=row['id'], name=row['name'],
+                year=row['year'], category_id=row['category']
+            )
+            title.save()
+        for row in DictReader(open('./api_yamdb/static/data/review.csv',
+                                   errors='ignore', encoding='utf-8')):
+            review = Review(
+                id=row['id'], title_id=row['title_id'],
+                text=row['text'], author_id=row['author'],
+                score=row['score'], pub_date=row['pub_date']
+            )
+            review.save()
+        for row in DictReader(open('./api_yamdb/static/data/comments.csv',
+                                   errors='ignore', encoding='utf-8')):
+            comment = Comment(
+                id=row['id'], review_id=row['review_id'],
+                text=row['text'], author_id=row['author'],
+                pub_date=row['pub_date']
+            )
+            comment.save()
+        for row in DictReader(open('./api_yamdb/static/data/genre_title.csv',
+                                   errors='ignore', encoding='utf-8')):
+            genre_title = GenreTitle(
+                id=row['id'], title_id=row['title_id'],
+                genre_id=row['genre_id']
+            )
+            genre_title.save()
