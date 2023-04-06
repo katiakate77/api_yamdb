@@ -30,10 +30,9 @@ from .serializers import (CategorySerializer, CommentSerializer,
 
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from django.contrib.auth.tokens import default_token_generator
-
+from django.conf import settings
 
 HTTP_METHOD_NAMES = ('get', 'post', 'patch', 'delete')
-FROM_EMAIL = 'practicum@yamdb.api'
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -85,7 +84,7 @@ class SignUPView(APIView):
             send_mail(
                 'Confirmation code',
                 f'{confirmation_code}',
-                FROM_EMAIL,
+                settings.FROM_EMAIL,
                 [email,],
                 fail_silently=False,
             )
