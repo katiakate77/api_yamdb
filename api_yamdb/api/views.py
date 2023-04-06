@@ -1,3 +1,6 @@
+import secrets
+from http import HTTPStatus
+from django.core.mail import send_mail
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
@@ -6,14 +9,14 @@ from django.db.models import Avg
 
 from rest_framework.decorators import action
 from rest_framework.response import Response
-
+from api_yamdb.settings import EMAIL_FILE_PATH
 
 from .filters import TitlesFilter
 
 from api.permissions import (ReadOnly, IsAdmin, AccessOrReadOnly)
 
 
-from .mixins import ListCreateDestroyViewSet
+from .mixins import ListCreateDestroyViewSet, AuthViewSet
 
 from users.models import User
 from reviews.models import (Category, Genre,
@@ -21,10 +24,46 @@ from reviews.models import (Category, Genre,
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, ProfileSerializer, ReviewSerializer,
                           TitleSerializer, TitleCreateUpdateSerializer,
-                          UserSerializer)
+                          UserSerializer, SignUpSerializer, TokenSerializer)
 
 
 HTTP_METHOD_NAMES = ('get', 'post', 'patch', 'delete')
+
+
+class TokenViewSet(viewsets.ModelViewSet):
+    serializer_class = TokenSerializer
+
+
+class SignUpViewSet(AuthViewSet):
+    @action(detail=False, methods=['post'])
+    def signup(self, request):
+        serializer = SignUpSerializer(data=request.data)
+        if serializer.is_valid():
+            username = serializer.validated_data.get('username')
+            email = serializer.validated_data.get('email')
+            token = secrets.token_urlsafe()
+            user = User.objects.create(
+                username=username,
+                email=email,
+                confirmation_code=token
+            )
+            user.save()
+            send_mail(
+                subject='Код авторизации',
+                message=f'{token = }',
+                from_email=EMAIL_FILE_PATH,
+                recipient_list=[email]
+            )
+            return Response(serializer.data, status=HTTPStatus.OK)
+        else:
+            username = request.data.get('username')
+            email = request.data.get('email')
+            try:
+                User.objects.get(username=username, email=email)
+                return Response(request.data, status=HTTPStatus.OK)
+            except User.DoesNotExist:
+                pass
+            return Response(serializer.errors, status=HTTPStatus.BAD_REQUEST)
 
 
 class UserViewSet(viewsets.ModelViewSet):

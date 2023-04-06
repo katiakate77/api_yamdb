@@ -40,7 +40,7 @@ class Command(BaseCommand):
             'genre': Genre,
             'title': Title,
             'genre_title': GenreTitle,
-            'user': User
+            'user': User,
         }
         try:
             return models[model_name.lower()]

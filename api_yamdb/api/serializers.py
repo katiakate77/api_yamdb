@@ -1,10 +1,39 @@
+from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 from rest_framework import serializers
-
+from rest_framework_simplejwt.tokens import RefreshToken
 from reviews.models import (Category, Genre, Title, GenreTitle,
                             Comment, Review
                             )
 from users.models import User
+
+
+class TokenSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    confirmation_code = serializers.CharField(required=True)
+
+    def validate(self, attrs):
+        user = get_object_or_404(User, username=attrs.get('username'))
+        if user.confirmation_code != attrs.get('confirmation_code'):
+            raise serializers.ValidationError(
+                'Некорректный код подтверждения'
+            )
+        refresh = RefreshToken.for_user(user)
+        return {'access_token': str(refresh.access_token)}
+
+
+class SignUpSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('email', 'username')
+
+    def validate(self, data):
+        if data['username'] == 'me':
+            raise serializers.ValidationError(
+                'Имя пользователя "me" запрещено!'
+            )
+        return data
 
 
 class CategorySerializer(serializers.ModelSerializer):

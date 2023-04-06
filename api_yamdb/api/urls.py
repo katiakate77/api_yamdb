@@ -23,6 +23,9 @@ router.register('genres', views.GenresViewSet, basename='genres')
 router.register('titles', views.TitlesViewSet, basename='titles')
 router.register('users', UserViewSet)
 
+router.register('auth', views.SignUpViewSet, basename='signup')
+router.register('auth/token', views.TokenViewSet, basename='token')
+
 app_name = 'api'
 urlpatterns = [
     path('', include(router.urls)),
