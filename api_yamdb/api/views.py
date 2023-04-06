@@ -4,8 +4,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
 from django.db.models import Avg
 from rest_framework.views import APIView
-import string
-import random
+import uuid
 from django.core.mail import send_mail
 
 from rest_framework.decorators import action
@@ -80,7 +79,8 @@ class SignUPView(APIView):
                 username=username,
                 email=email,
             )
-            confirmation_code = default_token_generator.make_token(user)
+            # confirmation_code = default_token_generator.make_token(user)
+            confirmation_code = uuid.uuid4()
             send_mail(
                 'Confirmation code',
                 f'{confirmation_code}',
