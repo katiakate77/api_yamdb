@@ -1,8 +1,8 @@
 from django.utils.timezone import now
 from rest_framework import serializers
 
-from reviews.models import (Category, Genre, Title, GenreTitle,
-                            Comment, Review
+from reviews.models import (Category, Comment, Genre,
+                            GenreTitle, Title, Review
                             )
 from users.models import User
 
