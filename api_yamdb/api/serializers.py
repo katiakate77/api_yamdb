@@ -112,9 +112,7 @@ class ProfileSerializer(UserSerializer):
     role = serializers.CharField(read_only=True)
 
 
-class SignUpSerializer(serializers.Serializer):
-    username = serializers.CharField()
-    email = serializers.CharField()
+class SignUpSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('username', 'email')

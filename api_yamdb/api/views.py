@@ -72,20 +72,35 @@ class SignUPView(APIView):
         if serializer.is_valid():
             username = serializer.validated_data.get('username')
             email = serializer.validated_data.get('email')
-            # confirmation_code = ''.join(random.sample(
-            #     string.ascii_letters + string.digits, 10)
-            # )
-            user, _ = User.objects.get_or_create(
+            confirmation_code = uuid.uuid4()
+            User.objects.create(
                 username=username,
                 email=email,
+                confirmation_code=confirmation_code
             )
-            # confirmation_code = default_token_generator.make_token(user)
-            confirmation_code = uuid.uuid4()
             send_mail(
-                'Confirmation code',
-                f'{confirmation_code}',
-                settings.FROM_EMAIL,
-                [email,],
+                subject='Confirmation code',
+                message=f'{confirmation_code}',
+                from_email=settings.FROM_EMAIL,
+                recipient_list=[email, ],
+                fail_silently=False,
+            )
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        elif User.objects.filter(
+            username=request.data.get('username'),
+            email=request.data.get('email')
+        ).exists():
+            username = request.data.get('username')
+            email = request.data.get('email')
+            user = User.objects.get(username=username, email=email)
+            confirmation_code = uuid.uuid4()
+            user.confirmation_code = confirmation_code
+            user.save()
+            send_mail(
+                subject='Confirmation code',
+                message=f'{user.confirmation_code}',
+                from_email=settings.FROM_EMAIL,
+                recipient_list=[user.email, ],
                 fail_silently=False,
             )
             return Response(serializer.data, status=status.HTTP_200_OK)
