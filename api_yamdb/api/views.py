@@ -27,8 +27,7 @@ from .serializers import (CategorySerializer, CommentSerializer,
                           UserSerializer,
                           SignUpSerializer, TokenSerializer)
 
-from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
-from django.contrib.auth.tokens import default_token_generator
+from rest_framework_simplejwt.tokens import AccessToken
 from django.conf import settings
 
 HTTP_METHOD_NAMES = ('get', 'post', 'patch', 'delete')
@@ -110,22 +109,24 @@ class SignUPView(APIView):
 class TokenView(APIView):
     def post(self, request):
         serializer = TokenSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = get_object_or_404(
-            User,
-            username=serializer.validated_data.get('username')
-        )
-        confirmation_code = serializer.validated_data.get('confirmation_code')
-        token = default_token_generator.check_token(user, confirmation_code)
-
-        if token == serializer.validated_data.get('confirmation_code'):
-            jwt_token = RefreshToken.for_user(user)
+        if serializer.is_valid():
+            user = get_object_or_404(
+                User,
+                username=serializer.validated_data.get('username')
+            )
+            confirmation_code = (serializer.validated_data
+                                 .get('confirmation_code'))
+            if confirmation_code == user.confirmation_code:
+                jwt_token = AccessToken.for_user(user)
+                return Response(
+                    {'token': f'{jwt_token}'}, status=status.HTTP_200_OK
+                )
             return Response(
-                {'token': f'{jwt_token}'}, status=status.HTTP_200_OK
+                {'message': 'Отказано в доступе'},
+                status=status.HTTP_400_BAD_REQUEST
             )
         return Response(
-            {'message': 'Отказано в доступе'},
-            status=status.HTTP_400_BAD_REQUEST
+            serializer.errors, status=status.HTTP_400_BAD_REQUEST
         )
 
 
