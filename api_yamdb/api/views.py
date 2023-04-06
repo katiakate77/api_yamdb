@@ -81,22 +81,20 @@ class SignUPView(APIView):
             # confirmation_code = ''.join(random.sample(
             #     string.ascii_letters + string.digits, 10)
             # )
-            user = User.objects.get_or_create(
+            user, _ = User.objects.get_or_create(
                 username=username,
                 email=email,
             )
             confirmation_code = default_token_generator.make_token(user)
-
             send_mail(
                 'Confirmation code',
                 f'{confirmation_code}',
                 FROM_EMAIL,
-                email,
+                [email,],
                 fail_silently=False,
             )
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 

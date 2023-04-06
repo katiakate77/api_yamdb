@@ -113,6 +113,9 @@ class ProfileSerializer(UserSerializer):
 
 
 class SignUpSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    email = serializers.CharField()
+
     class Meta:
         fields = ('username', 'email')
         model = User
@@ -126,6 +129,7 @@ class SignUpSerializer(serializers.Serializer):
 
 
 class TokenSerializer(serializers.ModelSerializer):
+    # username = serializers.CharField()
 
     class Meta:
         model = User
