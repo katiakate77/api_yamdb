@@ -30,7 +30,6 @@ from .serializers import (CategorySerializer, CommentSerializer,
 
 from rest_framework_simplejwt.tokens import AccessToken, RefreshToken
 from django.contrib.auth.tokens import default_token_generator
-                
 
 
 HTTP_METHOD_NAMES = ('get', 'post', 'patch', 'delete')
@@ -41,14 +40,11 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (IsAdmin,)
-    filter_backends = (filters.SearchFilter,
-                       filters.OrderingFilter
-                       )
+    filter_backends = (filters.SearchFilter,)
     search_fields = ('username',)
     pagination_class = PageNumberPagination
     http_method_names = HTTP_METHOD_NAMES
     lookup_field = 'username'
-    # ordering = ('id',)
 
     @action(
         detail=False,
@@ -95,7 +91,6 @@ class SignUPView(APIView):
             )
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class TokenView(APIView):
