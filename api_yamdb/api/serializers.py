@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 from rest_framework import serializers
 
@@ -52,12 +53,11 @@ class TitleCreateUpdateSerializer(serializers.ModelSerializer):
         read_only_fields = ('rating',)
 
     def create(self, validated_data):
-        category = validated_data.pop('category')
         genres = validated_data.pop('genre')
-        title = Title.objects.create(**validated_data, category=category)
+        title = Title.objects.create(**validated_data)
 
         for genre in genres:
-            genre = Genre.objects.get(slug=genre.slug)
+            genre = get_object_or_404(Genre, slug=genre.slug)
             GenreTitle.objects.create(genre=genre, title=title)
         return title
 
