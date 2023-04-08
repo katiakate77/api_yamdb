@@ -112,16 +112,40 @@ class ProfileSerializer(UserSerializer):
     role = serializers.CharField(read_only=True)
 
 
-class SignUpSerializer(serializers.ModelSerializer):
+class SignUpSerializer(serializers.Serializer):
+    username = serializers.RegexField(
+        regex=r'^[\w.@+-]+\Z', max_length=150, required=True
+    )
+    email = serializers.EmailField(max_length=254, required=True)
 
-    class Meta:
-        fields = ('username', 'email')
-        model = User
+    def validate(self, data):
+        if User.objects.filter(
+            username=data['username'], email=data['email']
+        ).exists():
+            return data
+
+        if User.objects.filter(username=data['username'].lower()).exists():
+            raise serializers.ValidationError(
+                'Неверный `username`'
+            )
+
+        if User.objects.filter(email=data['email'].lower()).exists():
+            raise serializers.ValidationError(
+                'Неверный `email`'
+            )
+
+        return data
+
+    def validate_username(self, value):
+        if value == 'me':
+            raise serializers.ValidationError(
+                'Использовать "me" в качестве username запрещено'
+            )
+        return value
 
 
 class TokenSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(required=True)
-    confirmation_code = serializers.CharField(required=True)
+    confirmation_code = serializers.CharField(max_length=36, required=True)
 
     class Meta:
         model = User

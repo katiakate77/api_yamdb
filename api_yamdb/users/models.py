@@ -12,17 +12,6 @@ def validate_username(value):
     return value
 
 
-def modify_fields(**kwargs):
-    def wrap(cls):
-        for field, properties_dict in kwargs.items():
-            for prop, val in properties_dict.items():
-                setattr(cls._meta.get_field(field), prop, val)
-        return cls
-    return wrap
-
-
-@modify_fields(username={
-    'validators': [UnicodeUsernameValidator(), validate_username]})
 class User(AbstractUser):
     ADMIN = 'admin'
     MODERATOR = 'moderator'
@@ -32,6 +21,12 @@ class User(AbstractUser):
         (MODERATOR, 'Модератор'),
         (USER, 'Пользователь'),
     ]
+    username = models.CharField(
+        max_length=150,
+        unique=True,
+        verbose_name='username',
+        validators=[UnicodeUsernameValidator(), validate_username]
+    )
     email = models.EmailField(
         unique=True,
         verbose_name='Адрес электронной почты'
