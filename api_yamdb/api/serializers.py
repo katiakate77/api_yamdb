@@ -126,12 +126,12 @@ class SignUpSerializer(serializers.Serializer):
 
         if User.objects.filter(username=data['username'].lower()).exists():
             raise serializers.ValidationError(
-                'Неверный `username`'
+                'Пользователь с таким `username` уже существует'
             )
 
         if User.objects.filter(email=data['email'].lower()).exists():
             raise serializers.ValidationError(
-                'Неверный `email`'
+                'Пользователь с таким `email` уже существует'
             )
 
         return data
@@ -144,9 +144,8 @@ class SignUpSerializer(serializers.Serializer):
         return value
 
 
-class TokenSerializer(serializers.ModelSerializer):
+class TokenSerializer(serializers.Serializer):
+    username = serializers.RegexField(
+        regex=r'^[\w.@+-]+\Z', max_length=150, required=True
+    )
     confirmation_code = serializers.CharField(max_length=36, required=True)
-
-    class Meta:
-        model = User
-        fields = ('username', 'confirmation_code')
