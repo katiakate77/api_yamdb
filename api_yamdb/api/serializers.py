@@ -3,9 +3,7 @@ from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 from rest_framework import serializers
 
-from reviews.models import (Category, Comment, Genre,
-                            GenreTitle, Title, Review
-                            )
+from reviews.models import Category, Comment, Genre, GenreTitle, Review, Title
 from users.models import User, validate_username
 
 

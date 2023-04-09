@@ -3,29 +3,25 @@ import uuid
 from django.conf import settings
 from django.core.mail import send_mail
 from django.db.models import Avg
-from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework.views import APIView
-
+from rest_framework_simplejwt.tokens import AccessToken
 
 from api.filters import TitlesFilter
 from api.mixins import ListCreateDestroyViewSet
-from api.permissions import (AccessOrReadOnly, IsAdmin, ReadOnly)
+from api.permissions import AccessOrReadOnly, IsAdmin, ReadOnly
 from api.serializers import (CategorySerializer, CommentSerializer,
                              GenreSerializer, ProfileSerializer,
                              ReviewSerializer, SignUpSerializer,
-                             TitleSerializer, TitleCreateUpdateSerializer,
-                             TokenSerializer, UserSerializer
-                             )
-
+                             TitleCreateUpdateSerializer, TitleSerializer,
+                             TokenSerializer, UserSerializer)
+from reviews.models import Category, Genre, Review, Title
 from users.models import User
-from reviews.models import (Category, Genre,
-                            Review, Title)
 
 
 HTTP_METHOD_NAMES = ('get', 'post', 'patch', 'delete')
