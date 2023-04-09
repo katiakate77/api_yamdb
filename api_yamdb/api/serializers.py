@@ -1,3 +1,4 @@
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.shortcuts import get_object_or_404
 from django.utils.timezone import now
 from rest_framework import serializers
@@ -113,8 +114,9 @@ class ProfileSerializer(UserSerializer):
 
 
 class SignUpSerializer(serializers.Serializer):
-    username = serializers.RegexField(
-        regex=r'^[\w.@+-]+\Z', max_length=150, required=True
+    username = serializers.CharField(
+        max_length=150, required=True,
+        validators=[UnicodeUsernameValidator(),],
     )
     email = serializers.EmailField(max_length=254, required=True)
 
@@ -145,7 +147,8 @@ class SignUpSerializer(serializers.Serializer):
 
 
 class TokenSerializer(serializers.Serializer):
-    username = serializers.RegexField(
-        regex=r'^[\w.@+-]+\Z', max_length=150, required=True
+    username = serializers.CharField(
+        max_length=150, required=True,
+        validators=[UnicodeUsernameValidator(),],
     )
     confirmation_code = serializers.CharField(max_length=36, required=True)
