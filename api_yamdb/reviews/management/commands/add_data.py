@@ -21,7 +21,7 @@ class Command(BaseCommand):
             os.path.join('.', 'api_yamdb', 'static', 'data')
         )
 
-        path_and_model = {
+        file_model = {
             'category': {'category.csv': Category},
             'comments': {'comments.csv': Comment},
             'genre_title': {'genre_title.csv': GenreTitle},
@@ -31,11 +31,10 @@ class Command(BaseCommand):
             'users': {'users.csv': User},
         }
 
-        if options['model'].lower() in path_and_model:
-            obj = path_and_model[options['model'].lower()]
-            file = list(obj.keys())[0]
+        if options['model'].lower() in file_model:
+            obj = file_model[options['model'].lower()]
+            file, model = list(item for item in obj.items())[0]
             path = os.path.join(dir_path, file)
-            model = list(obj.values())[0]
 
             obj_list = []
             with open(path, encoding='utf-8') as csv_file:
@@ -52,4 +51,5 @@ class Command(BaseCommand):
                 model.objects.bulk_create(obj_list)
         else:
             raise Exception('Такой модели нет')
+
 
