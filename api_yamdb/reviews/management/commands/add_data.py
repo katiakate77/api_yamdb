@@ -51,5 +51,3 @@ class Command(BaseCommand):
                 model.objects.bulk_create(obj_list)
         else:
             raise Exception('Такой модели нет')
-
-
