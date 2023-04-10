@@ -4,7 +4,8 @@ from django.utils.timezone import now
 from rest_framework import serializers
 
 from reviews.models import Category, Comment, Genre, GenreTitle, Review, Title
-from users.models import User, validate_username
+from users.models import User
+from users.validators import validate_username
 
 
 class CategorySerializer(serializers.ModelSerializer):

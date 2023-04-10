@@ -1,15 +1,8 @@
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.core.exceptions import ValidationError
 from django.db import models
 
-
-def validate_username(value):
-    if value == 'me':
-        raise ValidationError(
-            'Использовать "me" в качестве username запрещено'
-        )
-    return value
+from users.validators import validate_username
 
 
 class User(AbstractUser):

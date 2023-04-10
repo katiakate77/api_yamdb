@@ -18,33 +18,28 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         dir_path = os.path.abspath(
-            os.path.join(".", "api_yamdb", "static", "data")
+            os.path.join('.', 'api_yamdb', 'static', 'data')
         )
 
         path_and_model = {
-            'users': {os.path.join(dir_path, "users.csv"): User},
-            'category': {os.path.join(dir_path, "category.csv"): Category},
-            'genre': {os.path.join(dir_path, "genre.csv"): Genre},
-            'titles': {os.path.join(dir_path, "titles.csv"): Title},
-            'genre_title': {os.path.join(
-                            dir_path, "genre_title.csv"): GenreTitle},
-            'review': {os.path.join(dir_path, "review.csv"): Review},
-            'comments': {os.path.join(dir_path, "comments.csv"): Comment},
+            'category': {'category.csv': Category},
+            'comments': {'comments.csv': Comment},
+            'genre_title': {'genre_title.csv': GenreTitle},
+            'genre': {'genre.csv': Genre},
+            'review': {'review.csv': Review},
+            'titles': {'titles.csv': Title},
+            'users': {'users.csv': User},
         }
 
-        data = []
         if options['model'].lower() in path_and_model:
             obj = path_and_model[options['model'].lower()]
-            path = list(obj.keys())[0]
+            file = list(obj.keys())[0]
+            path = os.path.join(dir_path, file)
             model = list(obj.values())[0]
 
-            with open(path, newline='', encoding='utf-8') as f:
-                reader = csv.reader(f)
-                for row in reader:
-                    data.append(row)
-                for item in data[1:]:
-                    obj_dict = {key: value for key,
-                                value in zip(data[0], item)}
+            obj_list = []
+            with open(path, encoding='utf-8') as csv_file:
+                for obj_dict in csv.DictReader(csv_file):
                     if options['model'].lower() == 'titles':
                         obj_dict['category'] = Category(
                             int(obj_dict['category'])
@@ -53,8 +48,8 @@ class Command(BaseCommand):
                         obj_dict['author'] = User(int(obj_dict['author']))
                     elif options['model'].lower() == 'comments':
                         obj_dict['author'] = User(int(obj_dict['author']))
-                    obj_item = model(**obj_dict)
-                    obj_list = [obj_item]
-                    model.objects.bulk_create(obj_list)
+                    obj_list.append(model(**obj_dict))
+                model.objects.bulk_create(obj_list)
         else:
             raise Exception('Такой модели нет')
+
