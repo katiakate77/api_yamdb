@@ -50,4 +50,4 @@ python3 manage.py runserver
 
 ### Документация:
 
-http://127.0.0.1:8000/redoc/
+http://localhost:8000/redoc/
